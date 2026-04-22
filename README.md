@@ -6,7 +6,23 @@
 
 ## Screenshots 
 
-1. <img src="./Screenshots/App_UI_without_input.png">
+1. [App without PRD input] 
+    <img src="./Screenshots/App_UI_without_input.png">
+
+2. [App agent running]
+    <img src="./Screenshots/App_PRD_input_output_generating.png">
+
+3. [App agent pipeline status]
+    <img src="./Screenshots/App_PRD_output_generated_pipeline_status.png">
+
+4. [App output with component tree]
+    <img src="./Screenshots/App_PRD_output_generated_component_tree.png">
+
+5. [App output with Live preview]
+    <img src="./Screenshots/App_PRD_output_generated.png">
+
+6. [App output template code exporter]
+    <img src="./Screenshots/App_PRD_output_generated_code_for_export.png">
 
 ## Architecture Flow
 
