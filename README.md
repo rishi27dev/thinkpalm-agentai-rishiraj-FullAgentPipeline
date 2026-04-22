@@ -4,6 +4,10 @@
 
 ---
 
+## Screenshots 
+
+1. <img src="./Screenshots/App_UI_without_input.png">
+
 ## Architecture Flow
 
 ```mermaid
