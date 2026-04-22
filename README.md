@@ -4,6 +4,11 @@
 
 ---
 
+## PRD Requirement used
+
+[File path](./PRD%20Requirement.txt)
+
+
 ## Screenshots 
 
 1. [App without PRD input] 
