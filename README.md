@@ -1,125 +1,166 @@
-AgentUI is a professional, AI-powered application that transforms Product Requirement Documents (PRDs) into high-quality, production-ready React components. Leveraging the power of Groq AI and Llama 3, it automates the transition from text-based requirements to a structured component tree and live code.
+# SpecToUIAgent
 
-## 🚀 Pipeline Overview
+`SpecToUIAgent` is an agentic PRD-to-React pipeline that converts product requirements into a component tree, generated TSX, live preview output, and exportable project artifacts.
 
-```text
-[ PRD Input ] -> [ Groq Parser ] -> [ Architect Runner ] -> [ Code Generator ]
+---
+
+## Architecture Flow
+
+```mermaid
+graph TD
+    User([User]) -->|PRD + Config| UI[Next.js App UI]
+    UI -->|Trigger| Orch[Orchestrator]
+    
+    subgraph Agents ["Four-Agent Chain"]
+        Orch --> Agent1[PRD Analyst]
+        Agent1 --> Agent2[Architect]
+        Agent2 --> Agent3[Code Generator]
+        Agent3 --> Agent4[Reviewer]
+        Agent4 -->|Rejected| Agent3
+        Agent4 -->|Approved| Orch
+    end
+    
+    subgraph Tools ["Tool Layer"]
+        Agent1 --> T1[prd_parser]
+        Agent1 --> T2[memory_retriever]
+        Agent2 --> T3[tree_builder]
+        Agent3 --> T4[code_linter]
+        UI --> T5[export_packager]
+    end
+    
+    subgraph Memory ["Memory Systems"]
+        Agent1 & Agent2 & Agent3 & Agent4 & Orch <--> Session[(Session Store)]
+        Agent1 & Agent2 & Agent3 & Agent4 <--> Pad[Scratchpad]
+        T2 <--> Vector[(Vector Store)]
+    end
+    
+    subgraph Providers ["AI Providers"]
+        T1 & T3 & Agent3 & Agent4 --> LLM{LLM API}
+        LLM --> Groq[Groq / Llama 3]
+        LLM --> Gemini[Gemini v1beta]
+    end
+    
+    Orch -->|Output| UI
 ```
 
-## ✨ Key Features
-
-- **High-Performance Generation:** Powered by Groq's Llama 3 models for near-instant results.
-- **Multi-Stage AI Generation:** A robust three-stage pipeline (Parser → Architect → Code Gen) for maximum accuracy and structural integrity.
-- **Real-Time Streaming:** Watch the AI agent work in real-time with status updates streamed directly to the UI.
-- **Enhanced Component Explorer:** A recursive tree viewer with type-specific indicators and property badges.
-- **Live Preview & Code Viewer:** Built-in sandbox for instant visual feedback and a Monaco-powered code editor.
-- **One-Click Export:** Download your entire project as a ZIP file or open it instantly in a StackBlitz sandbox.
-- **Customizable Configuration:** Fine-tune the AI's output by choosing models, complexity levels, and visual tones.
-
-## 🛠️ Tech Stack
-
-| Tool | Purpose |
-| :--- | :--- |
-| **Next.js 14** | Modern React framework with App Router |
-| **Tailwind CSS** | Utility-first styling for generated and local components |
-| **Groq AI** | High-performance LLM for structured code generation (Llama 3) |
-| **Lucide React** | Premium icon library |
-| **Monaco Editor** | Industry-standard code editing experience |
-| **JSZip** | Browser-side project bundling |
-| **StackBlitz SDK** | Instant interactive previews |
-
-## 📋 Prerequisites
-
-- **Node.js:** version 18.0.0 or higher
-- **Groq API Key:** Obtain one from the [Groq Console](https://console.groq.com/)
-
-## ⚙️ Setup Instructions
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/prd-to-ui.git
-    cd prd-to-ui
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Configure Environment Variables:**
-    Create a `.env.local` file in the root directory:
-    ```bash
-    cp .env.example .env.local
-    ```
-    Open `.env.local` and add your secret key:
-    ```env
-    GROQ_API_KEY=your_actual_key_here
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    Access the app at `http://localhost:3000`.
-
-## 🌐 Environment Variables
-
-| Variable | Required | Description |
-| :--- | :---: | :--- |
-| `GROQ_API_KEY` | Yes | Your Groq API key |
-
-## 📖 Usage Walkthrough
-
-1.  **Input PRD:** Paste your raw requirements or upload a text file in the left panel.
-2.  **Configure:** Choose your preferred model (e.g., Gemini 1.5 Pro) and visual tone.
-3.  **Generate:** Click **Generate UI** and watch the AI status updates in the center panel.
-4.  **Explore:** Use the **Component Tree** to see the logic structure and hierarchy.
-5.  **View Code:** Select any node in the tree to view its specific JSX and Tailwind implementation.
-6.  **Export:** Use the **Export** menu to download a ZIP for local use or open it in **StackBlitz**.
-
-## 📂 Project Structure
+## Four-agent chain
 
 ```text
-prd-to-ui/
-├── app/                  # Next.js App Router (Pages and API routes)
-│   ├── api/generate/     # Gemini streaming endpoint
-│   └── page.tsx          # Main application shell
-├── components/           # UI Components
-│   ├── editor/           # PRD and Configuration inputs
-│   ├── export/           # Export actions and menu
-│   ├── preview/          # Code viewer and Live preview
-│   ├── tree/             # Component Tree explorer
-│   └── ui/               # Base UI elements (Button, Loader, etc.)
-├── lib/                  # Utility logic
-│   ├── export/           # ZIP and StackBlitz logic
-│   └── gemini/           # AI Prompts and SDK setup
-├── types/                # TypeScript interfaces and definitions
-└── tailwind.config.ts    # Design system configuration
+[PRD] → [Analyst] → [Architect] → [CodeGen] → [Reviewer] → [Output]
 ```
 
-## 🧠 Prompt Engineering & Architecture
+- **Agent 1 (PRD Analyst)**  
+  Reads raw PRD text, retrieves similar past PRDs from memory, calls the PRD parser tool, and writes `parsedPrd` into session memory.  
+  - Tools called: `memory_retriever`, `prd_parser`  
+  - Memory writes: `session.parsedPrd`, scratchpad thought entries
 
-AgentUI uses a **three-stage generative pipeline** to ensure consistency and modularity:
+- **Agent 2 (Architect)**  
+  Reads the parsed PRD and analyst scratchpad context, calls the component tree builder tool, and stores a `ComponentNode` tree in session memory.  
+  - Tools called: `component_tree_builder`  
+  - Memory writes: `session.componentTree`, scratchpad thought entries
 
-1.  **Stage 1: The Parser:** Extracts functional features and entities from the raw PRD text into a structured JSON schema.
-2.  **Stage 2: The Architect:** Designs the component hierarchy based on the parsed data, selecting appropriate types (Page, Layout, Component, etc.).
-3.  **Stage 3: The Code Gen:** Generates specific React/Tailwind code for each node in the tree, ensuring they are independent and high-quality.
+- **Agent 3 (Code Generator)**  
+  Walks the component tree leaves and generates TSX with an internal lint-and-retry loop. Supports specialized instructions for React + Tailwind components.  
+  - Tools called: `code_linter` (inside iterative loop)  
+  - Memory writes: `session.generatedCode` map (component name/id → TSX)
 
-**Why Temperature 0.3?**
-We use a low temperature to prioritize deterministic, predictable JSON structures while allowing just enough creativity for unique UI designs. This significantly reduces "hallucination" in the component tree.
+- **Agent 4 (Reviewer)**  
+  Reviews generated output for UX and logic consistency. Returns `overallScore`, `issues`, and `approved`. If rejected, orchestrator runs a targeted revision cycle.  
+  - Robustness: Uses specialized JSON extraction to handle various model output styles.
 
-**Few-Shot Examples:**
-The system uses specialized few-shot prompts to demonstrate "Gold Standard" component patterns to the AI, which significantly improves the accuracy of the generated property definitions and Tailwind class usage.
+## Dynamic Pipeline Intelligence
 
-## 🤝 Contributing
+- **Flexible Model Support**  
+  The system supports high-performance Llama 3 models (via Groq) and the latest Google Gemini models (via `v1beta` API).
+- **Lite Model Resilience**  
+  Smaller models (e.g., Gemini Flash Lite) often provide messy or markdown-wrapped JSON. The system implements a robust extraction layer (`lib/ai/utils.ts`) to maintain stability across different model tiers.
+- **Detailed Error Diagnostics**  
+  The pipeline surfaces granular feedback on safety filters, rate limits, and model service status (503s), helping users adjust their prompts or model selection.
 
-We welcome contributions! Please follow these steps:
-1.  Fork the project.
-2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+## Tool catalog
 
-## 📄 License
+| Tool | One-line description | Called by agent | Input → Output |
+| --- | --- | --- | --- |
+| `prd_parser` | Converts raw PRD text into structured JSON (`ParsedPrd`) | Analyst | `{ prdText }` → `{ appName, screens, roles, features, entities }` |
+| `memory_retriever` | Retrieves similar past PRDs from vector memory | Analyst | `{ prdText }` → `VectorEntry[]` |
+| `component_tree_builder` | Builds hierarchical UI component tree from parsed PRD | Architect | `ParsedPrd` → `ComponentNode` |
+| `code_linter` | Scores generated TSX and reports structural/style issues | Code Generator | `{ code }` → `{ valid, issues, score }` |
+| `export_packager` | Packages generated output as ZIP or StackBlitz payload | UI/Export flow | `{ result, format }` → export metadata/payload |
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+---
+
+## Full directory tree
+
+```text
+SpecToUIAgent/
+├── app/                                  # Next.js App Router UI + API entrypoints
+├── agents/                               # Pipeline agent implementations
+├── tools/                                # Typed tool layer used by agents
+├── components/                           # UI components grouped by feature
+├── lib/
+│   ├── ai/                               # LLM wrappers + prompts
+│   │   ├── groq.ts                       # Groq Llama 3 integration
+│   │   ├── gemini.ts                     # Gemini integration (v1beta)
+│   │   ├── utils.ts                      # Robust JSON extraction & utilities
+│   │   └── prompts.ts                    # Centralized system prompts
+│   └── export/                           # Export adapters/utilities
+├── memory/                               # Session, vector, and scratchpad stores
+├── types/                                # Shared TS contracts
+├── package.json                          # Scripts + dependencies
+├── tsconfig.json                         # TypeScript configuration
+└── tailwind.config.ts                    # Tailwind configuration
+```
+
+## Key design decisions
+
+- **Separate files per agent (single responsibility):** each stage has a clear contract, isolated prompts/tools, and easy unit/integration targeting.
+- **Typed tool schemas:** tools define explicit input/output schemas for validation, safe composition, and testability.
+- **AsyncGenerator pipeline:** orchestrator streams events in real-time (agent start/done/thought/error), supports cancellation, and maps naturally to SSE in the UI.
+- **Robust Output Handling:** Shared JSON extraction handles non-standard LLM responses, ensuring consistent parsing across all agents.
+
+## UI Capabilities
+
+- **3-Panel Shell**: Interactive PRD editor, hierarchical component explorer, and real-time live preview.
+- **Resizable Pipeline Monitor**: The bottom monitor panel is vertically draggable, allowing you to scale the visibility of agent interactions and logs.
+- **Live Preview Tabs**: Switch between component-tree nodes and a rendered live preview of the entire app structure.
+
+## Setup instructions
+
+### Prerequisites
+
+- Node.js 18+
+- API key for **Google Gemini** (AI Studio) or **Groq**
+
+### Installation and run
+
+```bash
+git clone <repo>
+cd SpecToUIAgent
+npm install
+cp .env.example .env.local
+# Fill in GEMINI_API_KEY (AI Studio) and/or GROQ_API_KEY
+npm run dev
+# Open http://localhost:3000
+```
+
+### Supported Models
+
+| Provider | Models |
+| --- | --- |
+| **Google Gemini** | `gemini-2.5-flash`, `gemini-3.1-flash-lite-preview` |
+| **Groq** | `llama-3.3-70b-versatile` |
+
+---
+
+## Architecture decisions
+
+### Why four agents instead of one big prompt
+
+- **Separation of concerns:** each agent solves one clear problem (analysis, planning, generation, review).
+- **Smaller prompts improve determinism:** narrower tasks reduce output drift and schema breakage.
+- **Built-in QA loop:** reviewer enables machine feedback and targeted revision without manual review in the common path.
+
+### Why vector memory
+
+- Past PRDs influence future runs, improving contextual accuracy over time.
+- Production path can swap in persistent vector engines behind the same retrieval interface.

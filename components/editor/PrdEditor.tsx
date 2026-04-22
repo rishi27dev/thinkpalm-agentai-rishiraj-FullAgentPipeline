@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import { Button } from "../ui/Button";
@@ -36,8 +36,9 @@ export default function PrdEditor({ content, setContent, onGenerate, isGeneratin
     }, [content]);
 
     return (
-        <div className="flex flex-col h-full space-y-4">
-            <div className="flex items-center justify-between">
+        <div className="flex flex-col h-full gap-0">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4">
                 <label className="text-sm font-semibold uppercase tracking-wider text-gray-400 flex items-center">
                     <FileText className="w-4 h-4 mr-2" />
                     PRD Input
@@ -61,7 +62,8 @@ export default function PrdEditor({ content, setContent, onGenerate, isGeneratin
                 </div>
             </div>
 
-            <div className="relative flex-1 min-h-[300px]">
+            {/* Textarea with file badge */}
+            <div className="relative flex-1 min-h-[250px] mb-4">
                 {fileName && (
                     <div className="absolute top-2 right-2 flex items-center bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-medium text-gray-600 border border-gray-200 z-10">
                         <FileText className="w-3 h-3 mr-1" />
@@ -79,8 +81,9 @@ export default function PrdEditor({ content, setContent, onGenerate, isGeneratin
                 />
             </div>
 
-            <div className="flex items-center justify-between px-1">
-                <div className="flex space-x-4">
+            {/* Stats */}
+            <div className="flex items-center justify-between px-1 pb-4">
+                <div className="flex gap-4">
                     <div className="flex flex-col">
                         <span className="text-[10px] uppercase font-bold text-gray-400">Characters</span>
                         <span className="text-xs font-medium text-gray-600">{stats.chars.toLocaleString()}</span>
@@ -95,20 +98,24 @@ export default function PrdEditor({ content, setContent, onGenerate, isGeneratin
                 </div>
             </div>
 
-            <Button
+            {/* Generate Button */}
+            <button
                 onClick={onGenerate}
                 disabled={isGenerating || !content.trim()}
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm font-semibold transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:shadow-sm"
             >
                 {isGenerating ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <>
+                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        <span>Generating...</span>
+                    </>
                 ) : (
                     <>
                         <Wand2 className="w-4 h-4" />
                         <span>Generate UI</span>
                     </>
                 )}
-            </Button>
+            </button>
         </div>
     );
 }

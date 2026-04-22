@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Definition of a property for a component
  */
 export interface PropDef {
@@ -49,7 +49,7 @@ export interface PrdInput {
  */
 export interface GenerationConfig {
     /** The AI model to use for generation */
-    model: 'llama-3.3-70b-versatile' | 'mixtral-8x7b-32768' | 'gemma2-9b-it' | 'gpt-4o';
+    model: 'llama-3.3-70b-versatile' | 'gemini-2.5-flash' | 'gemini-3.1-flash-lite-preview';
     /** Desired detail level of the generated components */
     complexity: 'minimal' | 'standard' | 'detailed';
     /** The visual and functional feel of the generated UI */

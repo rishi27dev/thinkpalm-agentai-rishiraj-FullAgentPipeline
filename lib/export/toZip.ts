@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import { ComponentNode, GenerationResult } from "@/types";
 
-export async function exportToZip(result: GenerationResult) {
+export async function toZip(result: GenerationResult) {
     const zip = new JSZip();
     const componentsFolder = zip.folder("components");
     const typesFolder = zip.folder("types");

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Cpu, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
@@ -38,10 +38,13 @@ export default function PromptConfig({ config, setConfig }: PromptConfigProps) {
                             onChange={(e) => updateConfig("model", e.target.value)}
                             className="w-full h-9 px-3 text-sm border border-gray-200 rounded-md bg-white focus:ring-1 focus:ring-black outline-none appearance-none"
                         >
-                            <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
-                            <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-                            <option value="gemma2-9b-it">Gemma 2 9B</option>
-                            <option value="gpt-4o">GPT-4o</option>
+                            <optgroup label="Open Source">
+                                <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                            </optgroup>
+                            <optgroup label="Google">
+                                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                                <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview</option>
+                            </optgroup>
                         </select>
                     </div>
 

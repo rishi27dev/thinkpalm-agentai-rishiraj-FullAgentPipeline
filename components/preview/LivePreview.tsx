@@ -17,40 +17,53 @@ export default function LivePreview({ components }: LivePreviewProps) {
         mobile: "w-[375px]",
     };
 
+    const getTypePreset = (node: ComponentNode) => {
+        switch (node.type) {
+            case "layout":
+                return "min-h-screen bg-slate-50 px-6 py-8";
+            case "page":
+                return "max-w-6xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6";
+            case "section":
+                return "bg-white border border-slate-200 rounded-xl p-5 space-y-4";
+            case "component":
+                return "bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3";
+            case "atom":
+                return "inline-flex items-center rounded-md bg-white border border-slate-300 px-3 py-1.5 text-sm text-slate-700";
+            default:
+                return "";
+        }
+    };
+
+    const needsImage = (name: string, description: string) => {
+        const text = `${name} ${description}`.toLowerCase();
+        return /(image|img|photo|avatar|logo|banner|hero|thumbnail|cover)/.test(text);
+    };
+
     /**
      * Recursively transforms a ComponentNode tree into an HTML string.
      */
     const renderNodeToHtml = (node: ComponentNode): string => {
-        const classes = node.tailwindClasses.join(" ");
+        const classes = `${getTypePreset(node)} ${node.tailwindClasses.join(" ")}`.trim();
         const childrenHtml = node.children.map(renderNodeToHtml).join("");
-
-        // Basic mapping of types to semantic tags or styles
-        let tag = "div";
-        let extraStyles = "position: relative; ";
-
-        // Add a subtle border to sections/components in the preview to visualize structure
-        if (node.type === "section" || node.type === "component") {
-            // extraStyles += "border: 1px dashed rgba(0,0,0,0.05); ";
-        }
-
-        const nameLabel = `
-      <span style="
-        position: absolute; 
-        top: -14px; 
-        left: 0; 
-        font-size: 8px; 
-        text-transform: uppercase; 
-        color: rgba(0,0,0,0.2); 
-        font-family: monospace;
-        white-space: nowrap;
-        pointer-events: none;
-      ">${node.name}</span>
-    `;
+        const imageBlock = needsImage(node.name, node.description)
+            ? `
+            <img
+              src="https://picsum.photos/seed/${encodeURIComponent(node.id || node.name)}/960/520"
+              alt="${node.name}"
+              class="w-full h-48 object-cover rounded-lg border border-slate-200"
+            />
+          `
+            : "";
 
         return `
-      <${tag} class="${classes}" style="${extraStyles}" title="${node.description}">
-        ${childrenHtml || (node.type === "atom" ? node.name : "")}
-      </${tag}>
+      <div class="${classes}" title="${node.description}">
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <h3 class="text-sm font-semibold text-slate-800">${node.name}</h3>
+          <span class="text-[10px] uppercase tracking-widest text-slate-400">${node.type}</span>
+        </div>
+        ${imageBlock}
+        ${childrenHtml || `<p class="text-sm text-slate-500">${node.description || "Generated component content."}</p>`}
+      </div>
     `;
     };
 
@@ -113,8 +126,8 @@ export default function LivePreview({ components }: LivePreviewProps) {
           .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         </style>
       </head>
-      <body class="bg-white min-h-screen">
-        <div id="root">
+      <body class="bg-slate-100 min-h-screen">
+        <div id="root" class="p-5 md:p-8">
           ${renderedContent || `
             <div class="flex flex-col items-center justify-center min-h-[400px] text-gray-300 font-mono">
               <p>No components to preview</p>
@@ -157,8 +170,8 @@ export default function LivePreview({ components }: LivePreviewProps) {
                 </div>
             </div>
 
-            <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex justify-center">
-                <div className={`${deviceWidths[device]} h-full transition-all duration-300 bg-white`}>
+            <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex justify-center p-3">
+                <div className={`${deviceWidths[device]} h-full transition-all duration-300 bg-white rounded-lg overflow-hidden border border-gray-100`}>
                     <iframe
                         srcDoc={iframeSrcDoc}
                         className="w-full h-full border-none"

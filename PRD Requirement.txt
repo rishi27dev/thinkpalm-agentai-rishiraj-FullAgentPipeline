@@ -1,0 +1,56 @@
+PRD Requirement
+
+========================
+
+1. Objective
+Generate a production-ready, accessible, and responsive Login Page component. The design should follow 2026 "Clean-Glass" aesthetics: light theme, high whitespace, and subtle shadows.
+
+2. Functional Requirements
+A. Authentication Form (Center Aligned)
+Fields: * Username/Email (Input with placeholder "name@company.com")
+
+Password (Input with "Show/Hide" toggle functionality)
+
+Validation: Basic client-side checks (Required fields, Email regex).
+
+CTA: Primary "Sign In" button with a scale-down effect on click.
+
+B. Social Auth Group (The "Trio")
+Include three distinct buttons with official brand colors/icons:
+
+Google: White background, thin border, Google "G" icon.
+
+Microsoft: Blue/White theme, Microsoft logo.
+
+Apple: Black background (or high-contrast), Apple logo.
+
+Layout: Buttons should be full-width or a sleek grid below the main form, separated by a "--- or ---" divider.
+
+3. UI/UX Specifications (Light Theme)
+Background: Subtle off-white/grey gradient (bg-slate-50).
+
+Card Styling: White background, rounded-2xl, shadow-xl, border border-slate-200.
+
+Alignment: The entire login card must be perfectly centered (both vertically and horizontally) using Flexbox or Grid.
+
+Typography: Sans-serif (Inter/Geist), bold headings, muted subtext for "Forgot Password?" links.
+
+4. Technical Constraints (Strict)
+Responsive: Mobile-first. The card should occupy 90% width on mobile and max-400px on desktop.
+
+Framework: Use Tailwind CSS for all styling. No external CSS files.
+
+State: Use React useState for form handling.
+
+Next.js: Ensure the component is marked with 'use client'.
+
+5. Phase-Based Implementation (For the LLM)
+Instruction to Gemini: Please follow these steps in order:
+
+Create the Layout Wrapper (Centered container + Background).
+
+Build the Main Form (Username/Password + Submit).
+
+Add the Social Buttons section with the divider.
+
+Apply the Tailwind Polish (Shadows, transitions, and hover states).

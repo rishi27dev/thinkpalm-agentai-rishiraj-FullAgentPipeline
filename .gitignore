@@ -41,7 +41,7 @@ next-env.d.ts
 
 # server memory store
 .memory-store.json
-.env.local
 
 # lock files
 package-lock.json
+tsc_*.txt

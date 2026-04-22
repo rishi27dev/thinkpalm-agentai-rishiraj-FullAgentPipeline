@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/Button";
 import { Download, ExternalLink, ChevronDown, Copy, Check, Code2 } from "lucide-react";
-import { exportToZip } from "@/lib/export/toZip";
-import { openInStackBlitz } from "@/lib/export/toStackBlitz";
+import { toZip } from "@/lib/export/toZip";
+import { toStackBlitz } from "@/lib/export/toStackBlitz";
 import { GenerationResult, ComponentNode } from "@/types";
 
 interface ExportMenuProps {
@@ -42,13 +42,13 @@ export default function ExportMenu({ result, selectedNode }: ExportMenuProps) {
     const handleZipExport = async () => {
         if (!result) return;
         setIsOpen(false);
-        await exportToZip(result);
+        await toZip(result);
     };
 
     const handleStackBlitzExport = () => {
         if (!result) return;
         setIsOpen(false);
-        openInStackBlitz(result);
+        toStackBlitz(result);
     };
 
     const isDisabled = !result;

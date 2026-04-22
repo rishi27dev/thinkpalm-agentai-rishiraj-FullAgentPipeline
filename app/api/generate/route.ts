@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { generateWithGroq } from "@/lib/ai/groq";
+import { generateWithModel } from "@/lib/ai/provider";
 import {
     SYSTEM_PROMPT_PARSER,
     SYSTEM_PROMPT_ARCHITECT,
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
                 try {
                     // STEP 1: Parse PRD
                     send("status", "Analyzing requirements...");
-                    const parserResponse = await generateWithGroq(
+                    const parserResponse = await generateWithModel(
                         config.model,
                         SYSTEM_PROMPT_PARSER,
                         prd
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
                     // STEP 2: Design Architecture
                     send("status", "Designing component architecture...");
-                    const architectResponse = await generateWithGroq(
+                    const architectResponse = await generateWithModel(
                         config.model,
                         SYSTEM_PROMPT_ARCHITECT,
                         JSON.stringify(parsedPrd)
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
                     const generateNodeCode = async (node: ComponentNode) => {
                         send("status", `Implementing ${node.name}...`);
 
-                        const codeResponse = await generateWithGroq(
+                        const codeResponse = await generateWithModel(
                             config.model,
                             SYSTEM_PROMPT_CODE_GEN,
                             `Component Hierarchy: ${node.name} (${node.type})\nPurpose: ${node.description}\nStyles: ${node.tailwindClasses.join(" ")}\n\nDesign Context: ${JSON.stringify(node)}`,
